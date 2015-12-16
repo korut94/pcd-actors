@@ -1,2 +1,4 @@
-1) In AbsActorySystem check if Map 'actors' is thread-safe []
-2) Sure that the ImpActorRer.run() method not entry in a deadlock []
+1) In AbsActorySystem check if Map 'actors' is thread-safe          []
+2) Sure that the ImpActorRer.run() method not entry in a deadlock   []
+3) Insert my copyright in every file                                []
+4) Remove default template file                                     []
