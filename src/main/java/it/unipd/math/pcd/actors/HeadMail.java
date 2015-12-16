@@ -8,5 +8,19 @@ public class HeadMail<T extends Message, U extends ActorRef>
     T message_;
     U sender_;
 
-    HeadMail(  )
+    public HeadMail( T message, U sender )
+    {
+        message_ = message;
+        sender_ = sender;
+    }
+
+    public T getMessage()
+    {
+        return message_;
+    }
+
+    public U getSender()
+    {
+        return sender_;
+    }
 }
