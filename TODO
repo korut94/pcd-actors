@@ -1,0 +1,2 @@
+1) In AbsActorySystem check if Map 'actors' is thread-safe []
+2) Sure that the ImpActorRer.run() method not entry in a deadlock []
