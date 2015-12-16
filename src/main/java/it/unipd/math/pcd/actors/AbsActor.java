@@ -66,4 +66,16 @@ public abstract class AbsActor<T extends Message> implements Actor<T> {
         this.self = self;
         return this;
     }
+
+    /**
+     * Sets the sender-referece.
+     *
+     * @param sender The reference to actor sender
+     * @return The actor.
+     */
+    protected final Actor<T> setSender( ActorRef<T> sender )
+    {
+        this.sender = sender;
+        return this;
+    }
 }
