@@ -11,14 +11,14 @@ public final class ImpActorRef<T extends Message> extends Thread implements Acto
 {
     private AbsActorSystem system_;
     private MailBox<T,ActorRef<T>> mailBox_ = new ImpMailBox<>();
-    private Lock lock = new ReentrantLock();
-    private Condition notEmpty;
+    private Lock lock_ = new ReentrantLock();
+    private Condition notEmpty_;
     private boolean stop_ = false;
 
     public ImpActorRef( AbsActorSystem system )
     {
         system_ = system;
-        notEmpty = lock.newCondition();
+        notEmpty_ = lock_.newCondition();
     }
 
     /**
@@ -39,10 +39,10 @@ public final class ImpActorRef<T extends Message> extends Thread implements Acto
      */
     public void send( T message, ActorRef to )
     {
-        lock.lock();
+        lock_.lock();
         mailBox_.append( message, to );
-        notEmpty.signal(); //wake up
-        lock.unlock();
+        notEmpty_.signal(); //wake up
+        lock_.unlock();
     }
 
     /**
@@ -63,17 +63,17 @@ public final class ImpActorRef<T extends Message> extends Thread implements Acto
         {
             while( !stop_ )
             {
+                lock_.lock();
                 /**
-                 * I use if and not while because is sufficient that only message will append in the MailBox
+                 * I use if because when append to message in the MailBox not one remove it
                  */
                 if( mailBox_.isEmpty() )
                 {
-                    notEmpty.await(); //Go to the sleep thread
+                    notEmpty_.await(); //Go to the sleep thread and unlock lock
                 }
 
-                lock.lock();
                 HeadMail<T,ActorRef<T>> head = mailBox_.pop();
-                lock.unlock();
+                lock_.unlock();
 
                 ActorRef<T> sender = head.getSender();
                 T message = head.getMessage();
@@ -86,7 +86,11 @@ public final class ImpActorRef<T extends Message> extends Thread implements Acto
         }
         catch( InterruptedException e )
         {
-
+            e.printStackTrace();
+        }
+        finally
+        {
+            lock_.unlock();
         }
     }
 }
