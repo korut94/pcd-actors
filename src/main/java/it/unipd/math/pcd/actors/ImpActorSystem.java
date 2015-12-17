@@ -13,9 +13,9 @@ public final class ImpActorSystem extends AbsActorSystem
     @Override
     public void stop()
     {
-        Map<ActorRef<? extends Message>, Actor<?>> actors = getMap();
+        Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMap();
 
-        for( Map.Entry<ActorRef<? extends Message>, Actor<?>> entry : actors.entrySet() )
+        for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
             ( ( ImpActorRef ) entry.getKey() ).stopSend();
         }
