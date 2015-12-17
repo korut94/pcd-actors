@@ -1,4 +1,6 @@
-1) In AbsActorySystem check if Map 'actors' is thread-safe          []
+1) In AbsActorySystem check if Map 'actors' is thread-safe          [OK]
 2) Sure that the ImpActorRer.run() method not entry in a deadlock   [OK]
 3) Insert my copyright in every file                                []
 4) Remove default template file                                     []
+5) Use Promises to get a ActorRef ( optional )                      []
+6) Test application                                                 []
