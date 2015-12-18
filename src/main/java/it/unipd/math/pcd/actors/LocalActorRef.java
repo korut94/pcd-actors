@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by amantova on 16/12/15.
  */
-public final class ImpActorRef<T extends Message> extends Thread implements ActorRef<T>
+public final class LocalActorRef<T extends Message> extends Thread implements ActorRef<T>
 {
     private AbsActorSystem system_;
     private MailBox<T,ActorRef<T>> mailBox_ = new ImpMailBox<>();
@@ -15,7 +15,7 @@ public final class ImpActorRef<T extends Message> extends Thread implements Acto
     private Condition notEmpty_;
     private boolean stop_ = false;
 
-    public ImpActorRef( AbsActorSystem system )
+    public LocalActorRef(AbsActorSystem system )
     {
         system_ = system;
         notEmpty_ = lock_.newCondition();
