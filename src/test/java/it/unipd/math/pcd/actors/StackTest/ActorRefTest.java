@@ -35,8 +35,9 @@
  * @version 1.0
  * @since 1.0
  */
-package it.unipd.math.pcd.actors;
+package it.unipd.math.pcd.actors.StackTest;
 
+import it.unipd.math.pcd.actors.ActorRef;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,6 +55,13 @@ public class ActorRefTest {
         // FIXME This is a simple (and definitely useless) example test
         //       that has to be substituted with something more useful
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void createRef()
+    {
+        System.out.println( "Test success" );
+        Assert.assertTrue( true );
     }
 }
 
