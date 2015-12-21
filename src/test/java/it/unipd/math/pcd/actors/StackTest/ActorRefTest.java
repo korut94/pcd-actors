@@ -38,6 +38,9 @@
 package it.unipd.math.pcd.actors.StackTest;
 
 import it.unipd.math.pcd.actors.ActorRef;
+import it.unipd.math.pcd.actors.ActorSystem;
+import it.unipd.math.pcd.actors.ImpActorSystem;
+import it.unipd.math.pcd.actors.Message;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,8 +63,24 @@ public class ActorRefTest {
     @Test
     public void createRef()
     {
-        System.out.println( "Test success" );
-        Assert.assertTrue( true );
+        ImpActorSystem system = new ImpActorSystem();
+        ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
+
+        ref.send( new PushMessage( 5 ), ref );
+    }
+
+    @Test
+    public void sendAndReceive()
+    {
+        ImpActorSystem system = new ImpActorSystem();
+        ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
+
+        ActorRef<Message>[] printer = new ActorRef[1];
+        for( int i = 0; i < 1; i++ )
+        {
+            printer[i] = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
+            printer[i].send( new SendMessage(), ref );
+        }
     }
 }
 

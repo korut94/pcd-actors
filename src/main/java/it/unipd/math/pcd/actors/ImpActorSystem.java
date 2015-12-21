@@ -17,7 +17,7 @@ public final class ImpActorSystem extends AbsActorSystem
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            ( (LocalActorRef) entry.getKey() ).stopSend();
+            ( ( LocalActorRef ) entry.getKey() ).stopSend();
         }
     }
 
@@ -30,7 +30,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            ( (LocalActorRef) actor ).stopSend();
+            ( ( LocalActorRef ) actor ).stopSend();
         }
     }
 

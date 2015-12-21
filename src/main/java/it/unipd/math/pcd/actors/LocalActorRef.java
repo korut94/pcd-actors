@@ -12,13 +12,14 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     private AbsActorSystem system_;
     private MailBox<T,ActorRef<T>> mailBox_ = new ImpMailBox<>();
     private Lock lock_ = new ReentrantLock();
-    private Condition notEmpty_;
+    private Condition working_;
+    private boolean processed_ = true;
     private boolean stop_ = false;
 
     public LocalActorRef(AbsActorSystem system )
     {
         system_ = system;
-        notEmpty_ = lock_.newCondition();
+        working_ = lock_.newCondition();
     }
 
     /**
@@ -41,7 +42,7 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     {
         lock_.lock();
         mailBox_.append( message, to );
-        notEmpty_.signal(); //wake up
+        working_.signal(); //wake up
         lock_.unlock();
     }
 
@@ -51,6 +52,7 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     public void stopSend()
     {
         stop_ = true;
+        working_.signal();
     }
 
     /**
@@ -61,15 +63,16 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     {
         try
         {
-            while( !stop_ )
+            while( processed_ )
             {
                 lock_.lock();
+
                 /**
-                 * I use if because when append to message in the MailBox not one remove it
+                 * The while check if either the mailbox is empty or actor is in a stop status
                  */
-                if( mailBox_.isEmpty() )
+                while( mailBox_.isEmpty() || stop_ )
                 {
-                    notEmpty_.await(); //Go to the sleep thread and unlock lock
+                    working_.await(); //Go to the sleep thread and unlock lock
                 }
 
                 HeadMail<T,ActorRef<T>> head = mailBox_.pop();
