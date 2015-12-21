@@ -63,9 +63,9 @@ public abstract class AbsActorSystem implements ActorSystem {
         ActorRef<?> reference;
         try {
             // Create the reference to the actor
-            reference = this.createActorReference(mode);
+            reference = this.createActorReference( mode );
             // Create the new instance of the actor
-            Actor actorInstance = ((AbsActor) actor.newInstance()).setSelf(reference);
+            Actor actorInstance = ( ( AbsActor ) actor.newInstance() ).setSelf( reference );
             // Associate the reference to the actor
             actors.put(reference, actorInstance);
 
