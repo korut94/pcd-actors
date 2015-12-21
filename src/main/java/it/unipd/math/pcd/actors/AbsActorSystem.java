@@ -39,7 +39,6 @@ package it.unipd.math.pcd.actors;
 
 import it.unipd.math.pcd.actors.exceptions.NoSuchActorException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,7 +81,17 @@ public abstract class AbsActorSystem implements ActorSystem {
 
     public Actor<? extends Message> dereferenceActor( ActorRef ref )
     {
-        return actors.get( ref );
+        Actor actor = actors.get( ref );
+
+        if( actor != null )
+        {
+            return actor;
+        }
+
+        else
+        {
+            throw new NoSuchActorException();
+        }
     }
 
     protected Map<ActorRef<? extends Message>,Actor<? extends Message>> getMap()
