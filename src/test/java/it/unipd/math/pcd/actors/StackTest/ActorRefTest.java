@@ -37,10 +37,7 @@
  */
 package it.unipd.math.pcd.actors.StackTest;
 
-import it.unipd.math.pcd.actors.ActorRef;
-import it.unipd.math.pcd.actors.ActorSystem;
-import it.unipd.math.pcd.actors.ImpActorSystem;
-import it.unipd.math.pcd.actors.Message;
+import it.unipd.math.pcd.actors.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,25 +58,50 @@ public class ActorRefTest {
     }
 
     @Test
-    public void createRef()
-    {
-        ImpActorSystem system = new ImpActorSystem();
-        ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
-
-        ref.send( new PushMessage( 5 ), ref );
-    }
-
-    @Test
     public void sendAndReceive()
     {
+        System.out.println( "In sendAndReceive test:" );
         ImpActorSystem system = new ImpActorSystem();
         ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
 
-        ActorRef<Message>[] printer = new ActorRef[1];
-        for( int i = 0; i < 1; i++ )
+        /*
+        ActorRef<Message> printer = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
+        printer.send( new PushMessage( 5 ), ref );
+        printer.send( new PushMessage( 4 ), ref );
+        printer.send( new PushMessage( 3 ), ref );
+        printer.send( new PushMessage( 6 ), ref );
+        printer.send( new PopMessage(), ref );
+        printer.send( new PopMessage(), ref );
+        printer.send( new PushMessage( 10 ), ref );
+        printer.send( new PushMessage( 5 ), ref );
+        printer.send( new PopMessage(), ref );
+        printer.send( new PopMessage(), ref );
+        printer.send( new PopMessage(), ref );
+        printer.send( new PushMessage( 3 ), ref );
+        printer.send( new PushMessage( 6 ), ref );
+        */
+
+        int bound = 10;
+
+        ActorRef<Message>[] printers = new ActorRef[bound];
+        for( int i = 0; i < bound; i++ )
         {
-            printer[i] = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
-            printer[i].send( new SendMessage(), ref );
+            printers[i] = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
+            printers[i].send( new PushMessage( i ), ref );
+        }
+
+        for( int j = 0; j < bound; j += 2)
+        {
+            printers[j].send( new PopMessage(), ref );
+        }
+
+        //wait completely all actor's task
+        try {
+            Thread.sleep( 100 );
+        }
+        catch( InterruptedException e )
+        {
+
         }
     }
 }

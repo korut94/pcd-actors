@@ -27,7 +27,9 @@ public class StackActor extends AbsActor<Message>
         else if( message instanceof PushMessage )
         {
             PushMessage msg = ( PushMessage ) message;
+
             stack_.push( msg.extract() );
+            System.out.println( stack_.toString() );
         }
 
         else throw new UnsupportedMessageException( message );
