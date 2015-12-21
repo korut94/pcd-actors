@@ -23,6 +23,19 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     }
 
     /**
+     * Append message to the mailbox
+     * @param message Message to storage
+     * @param to Sender of message
+     */
+    public void post( T message, ActorRef to )
+    {
+        lock_.lock();
+        mailBox_.append( message, to );
+        working_.signal(); //wake up
+        lock_.unlock();
+    }
+
+    /**
      * Check if actorRef references is same
      * @param other ActorRef
      * @return return 0 if same else -1
@@ -38,12 +51,13 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
      * @param message The message to send
      * @param to The actor to which sending the message
      */
+    @Override
     public void send( T message, ActorRef to )
     {
-        lock_.lock();
-        mailBox_.append( message, to );
-        working_.signal(); //wake up
-        lock_.unlock();
+        /**
+         * Email send to the mailbox of ActorRef 'to'
+         */
+        ( ( LocalActorRef ) to ).post( message, this ); //override???
     }
 
     /**
@@ -81,9 +95,9 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
                 ActorRef<T> sender = head.getSender();
                 T message = head.getMessage();
 
-                AbsActor<T> actor = ( AbsActor<T> ) system_.dereferenceActor( sender );
-                actor.setSender( sender );
+                AbsActor<T> actor = ( AbsActor<T> ) system_.dereferenceActor( this );
 
+                actor.setSender( sender );
                 actor.receive( message ); //attend conclusion of task
             }
         }
