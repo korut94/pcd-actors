@@ -27,7 +27,7 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
      * @param message Message to storage
      * @param to Sender of message
      */
-    public void post( T message, ActorRef to )
+    private void post( T message, ActorRef to )
     {
         lock_.lock();
         mailBox_.append( message, to );
