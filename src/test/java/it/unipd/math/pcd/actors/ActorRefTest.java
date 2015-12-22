@@ -35,9 +35,14 @@
  * @version 1.0
  * @since 1.0
  */
-package it.unipd.math.pcd.actors.StackTest;
+package it.unipd.math.pcd.actors;
 
-import it.unipd.math.pcd.actors.*;
+import it.unipd.math.pcd.actors.LoopTest.LoopActor;
+import it.unipd.math.pcd.actors.LoopTest.ResendMessage;
+import it.unipd.math.pcd.actors.StackTest.PopMessage;
+import it.unipd.math.pcd.actors.StackTest.PrintActor;
+import it.unipd.math.pcd.actors.StackTest.PushMessage;
+import it.unipd.math.pcd.actors.StackTest.StackActor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,28 +65,10 @@ public class ActorRefTest {
     @Test
     public void sendAndReceive()
     {
-        System.out.println( "In sendAndReceive test:" );
         ImpActorSystem system = new ImpActorSystem();
         ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
 
-        /*
-        ActorRef<Message> printer = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
-        printer.send( new PushMessage( 5 ), ref );
-        printer.send( new PushMessage( 4 ), ref );
-        printer.send( new PushMessage( 3 ), ref );
-        printer.send( new PushMessage( 6 ), ref );
-        printer.send( new PopMessage(), ref );
-        printer.send( new PopMessage(), ref );
-        printer.send( new PushMessage( 10 ), ref );
-        printer.send( new PushMessage( 5 ), ref );
-        printer.send( new PopMessage(), ref );
-        printer.send( new PopMessage(), ref );
-        printer.send( new PopMessage(), ref );
-        printer.send( new PushMessage( 3 ), ref );
-        printer.send( new PushMessage( 6 ), ref );
-        */
-
-        int bound = 10;
+        int bound = 20;
 
         ActorRef<Message>[] printers = new ActorRef[bound];
         for( int i = 0; i < bound; i++ )
@@ -103,6 +90,27 @@ public class ActorRefTest {
         {
 
         }
+    }
+
+    @Test
+    public void stopOneMoment()
+    {
+        ImpActorSystem system = new ImpActorSystem();
+        ActorRef<Message> A = ( ActorRef<Message> ) system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
+        ActorRef<Message> B = ( ActorRef<Message> ) system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
+
+        A.send( new ResendMessage(), B );
+
+        try
+        {
+            Thread.sleep( 2000 );
+        }
+        catch( InterruptedException e )
+        {
+
+        }
+
+        system.stop();
     }
 }
 
