@@ -8,6 +8,15 @@ import it.unipd.math.pcd.actors.Message;
  */
 public class LoopActor extends AbsActor<Message>
 {
+    private static int _i = 0;
+    private int id_ = _i;
+
+    public LoopActor()
+    {
+        _i++;
+        id_++;
+    }
+
     @Override
     public void receive( Message message )
     {
@@ -16,7 +25,7 @@ public class LoopActor extends AbsActor<Message>
             try
             {
                 Thread.sleep( 100 );
-                System.out.println( "Receive" );
+                System.out.println( "Receive " + id_ );
             }
             catch( InterruptedException e )
             {
