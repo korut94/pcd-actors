@@ -1,6 +1,5 @@
 package it.unipd.math.pcd.actors;
 
-import java.io.BufferedReader;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,7 +14,6 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     private Lock lock_ = new ReentrantLock();
     private Condition working_;
     private boolean processed_ = true;
-    private boolean stop_ = false;
 
     public LocalActorRef(AbsActorSystem system )
     {
@@ -65,14 +63,13 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     }
 
     /**
-     * Stop send message
+     * Remove all appended message from ActorRef's mailbox
      */
     public void stopSend()
     {
         lock_.lock();
 
-        stop_ = true;
-        working_.signal();
+        mailBox_.clear();
 
         lock_.unlock();
     }
@@ -90,9 +87,9 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
                 lock_.lock();
 
                 /**
-                 * The while check if either the mailbox is empty or actor is in a stop status
+                 * When one call signal of working is sure that there is at least one message in the mailbox
                  */
-                while( mailBox_.isEmpty() || stop_ )
+                if( mailBox_.isEmpty() )
                 {
                     working_.await(); //Go to the sleep thread and unlock lock
                 }
