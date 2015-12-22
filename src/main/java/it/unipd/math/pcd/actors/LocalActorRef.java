@@ -1,5 +1,6 @@
 package it.unipd.math.pcd.actors;
 
+import java.io.BufferedReader;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,9 +30,12 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
      */
     private void post( T message, ActorRef to )
     {
+        //Block synchronized to acquire monitor
         lock_.lock();
+
         mailBox_.append( message, to );
         working_.signal(); //wake up
+
         lock_.unlock();
     }
 
@@ -65,8 +69,12 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
      */
     public void stopSend()
     {
+        lock_.lock();
+
         stop_ = true;
         working_.signal();
+
+        lock_.unlock();
     }
 
     /**
