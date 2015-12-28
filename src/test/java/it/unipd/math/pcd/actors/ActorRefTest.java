@@ -66,14 +66,14 @@ public class ActorRefTest {
     public void sendAndReceive()
     {
         ImpActorSystem system = new ImpActorSystem();
-        ActorRef<Message> ref = ( ActorRef<Message> ) system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
+        ActorRef ref = system.actorOf( StackActor.class, ActorSystem.ActorMode.LOCAL );
 
         int bound = 20;
 
-        ActorRef<Message>[] printers = new ActorRef[bound];
+        ActorRef[] printers = new ActorRef[bound];
         for( int i = 0; i < bound; i++ )
         {
-            printers[i] = ( ActorRef<Message> ) system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
+            printers[i] = system.actorOf( PrintActor.class, ActorSystem.ActorMode.LOCAL );
             printers[i].send( new PushMessage( i ), ref );
         }
 
@@ -83,21 +83,24 @@ public class ActorRefTest {
         }
 
         //wait completely all actor's task
-        try {
-            Thread.sleep( 100 );
+        try
+        {
+            Thread.sleep( 200 );
         }
         catch( InterruptedException e )
         {
 
         }
+
+        system.stop();
     }
 
     @Test
     public void stopOneMoment()
     {
         ImpActorSystem system = new ImpActorSystem();
-        ActorRef<Message> A = ( ActorRef<Message> ) system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
-        ActorRef<Message> B = ( ActorRef<Message> ) system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
+        ActorRef A = system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
+        ActorRef B = system.actorOf( LoopActor.class, ActorSystem.ActorMode.LOCAL );
 
         A.send( new ResendMessage(), B );
 
@@ -111,6 +114,7 @@ public class ActorRefTest {
         }
 
         system.stop();
+        System.out.println( "End test" );
     }
 }
 

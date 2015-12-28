@@ -1,6 +1,5 @@
 package it.unipd.math.pcd.actors;
 
-import java.io.BufferedReader;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,9 +14,8 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     private Lock lock_ = new ReentrantLock();
     private Condition working_;
     private boolean processed_ = true;
-    private boolean stop_ = false;
 
-    public LocalActorRef(AbsActorSystem system )
+    public LocalActorRef( AbsActorSystem system )
     {
         system_ = system;
         working_ = lock_.newCondition();
@@ -61,20 +59,17 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
         /**
          * Email send to the mailbox of ActorRef 'to'
          */
-        ( ( LocalActorRef ) to ).post( message, this ); //override???
+        ( ( LocalActorRef<T> ) to ).post( message, this ); //override???
     }
 
     /**
-     * Stop send message
+     * Exit to the process messages loop
      */
-    public void stopSend()
+    @Override
+    public void interrupt()
     {
-        lock_.lock();
-
-        stop_ = true;
-        working_.signal();
-
-        lock_.unlock();
+        processed_ = false;
+        super.interrupt();
     }
 
     /**
@@ -83,18 +78,18 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     @Override
     public void run()
     {
-        try
+        while( processed_ )
         {
-            while( processed_ )
+            try
             {
                 lock_.lock();
 
                 /**
-                 * The while check if either the mailbox is empty or actor is in a stop status
+                 * When one call signal of working is sure that there is at least one message in the mailbox
                  */
-                while( mailBox_.isEmpty() || stop_ )
+                if( mailBox_.isEmpty() )
                 {
-                    working_.await(); //Go to the sleep thread and unlock lock
+                    working_.await(); //Go to sleep thread and unlock lock
                 }
 
                 HeadMail<T,ActorRef<T>> head = mailBox_.pop();
@@ -108,14 +103,11 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
                 actor.setSender( sender );
                 actor.receive( message ); //attend conclusion of task
             }
-        }
-        catch( InterruptedException e )
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            lock_.unlock();
+
+            catch( InterruptedException e )
+            {
+                lock_.unlock();
+            }
         }
     }
 }

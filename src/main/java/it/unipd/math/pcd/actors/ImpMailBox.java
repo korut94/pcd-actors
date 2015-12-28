@@ -37,4 +37,13 @@ public final class ImpMailBox<T extends Message,U extends ActorRef<T>> implement
     {
         return queue_.pollFirst();
     }
+
+    /**
+     * Removes all of the elements from this MailBox
+     */
+    @Override
+    public void clear()
+    {
+        queue_.clear();
+    }
 }
