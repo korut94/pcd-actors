@@ -15,7 +15,7 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     private Condition working_;
     private boolean processed_ = true;
 
-    public LocalActorRef(AbsActorSystem system )
+    public LocalActorRef( AbsActorSystem system )
     {
         system_ = system;
         working_ = lock_.newCondition();
@@ -59,19 +59,17 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
         /**
          * Email send to the mailbox of ActorRef 'to'
          */
-        ( ( LocalActorRef ) to ).post( message, this ); //override???
+        ( ( LocalActorRef<T> ) to ).post( message, this ); //override???
     }
 
     /**
-     * Remove all appended message from ActorRef's mailbox
+     * Exit to the process messages loop
      */
-    public void stopSend()
+    @Override
+    public void interrupt()
     {
-        lock_.lock();
-
-        mailBox_.clear();
-
-        lock_.unlock();
+        processed_ = false;
+        super.interrupt();
     }
 
     /**
@@ -80,9 +78,9 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     @Override
     public void run()
     {
-        try
+        while( processed_ )
         {
-            while( processed_ )
+            try
             {
                 lock_.lock();
 
@@ -91,7 +89,7 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
                  */
                 if( mailBox_.isEmpty() )
                 {
-                    working_.await(); //Go to the sleep thread and unlock lock
+                    working_.await(); //Go to sleep thread and unlock lock
                 }
 
                 HeadMail<T,ActorRef<T>> head = mailBox_.pop();
@@ -105,14 +103,11 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
                 actor.setSender( sender );
                 actor.receive( message ); //attend conclusion of task
             }
-        }
-        catch( InterruptedException e )
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            lock_.unlock();
+
+            catch( InterruptedException e )
+            {
+                lock_.unlock();
+            }
         }
     }
 }
