@@ -17,7 +17,7 @@ public final class ImpActorSystem extends AbsActorSystem
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            ( ( LocalActorRef ) entry.getKey() ).stopSend();
+            stop( ( LocalActorRef ) entry.getKey() );
         }
     }
 
@@ -30,7 +30,17 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            ( ( LocalActorRef ) actor ).stopSend();
+            LocalActorRef ref = ( LocalActorRef ) actor;
+            ref.interrupt();
+
+            try
+            {
+                ref.join(); //wait exit of its loop
+            }
+            catch( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -40,6 +50,7 @@ public final class ImpActorSystem extends AbsActorSystem
         if( mode == ActorMode.LOCAL )
         {
             LocalActorRef ref = new LocalActorRef( this );
+
             /**
              * Note that thread is start but it will stop because the mailbox is empty
              */
