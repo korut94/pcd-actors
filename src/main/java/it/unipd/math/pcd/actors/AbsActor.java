@@ -99,7 +99,7 @@ public abstract class AbsActor<T extends Message> extends Thread implements Acto
      * @param message Message to storage
      * @param to Sender of message
      */
-    public void post( T message, ActorRef to )
+    public void post( T message, ActorRef<T> to )
     {
         //Block synchronized to acquire monitor
         lock_.lock();
