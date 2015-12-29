@@ -31,8 +31,11 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
         //Block synchronized to acquire monitor
         lock_.lock();
 
-        mailBox_.append( message, to );
-        working_.signal(); //wake up
+        if( processed_ )
+        {
+            mailBox_.append( message, to );
+            working_.signal(); //wake up
+        }
 
         lock_.unlock();
     }
@@ -68,7 +71,10 @@ public final class LocalActorRef<T extends Message> extends Thread implements Ac
     @Override
     public void interrupt()
     {
+        lock_.lock();
         processed_ = false;
+        lock_.unlock();
+
         super.interrupt();
     }
 
