@@ -37,6 +37,10 @@
  */
 package it.unipd.math.pcd.actors;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Defines common properties of all actors.
  *
@@ -44,7 +48,18 @@ package it.unipd.math.pcd.actors;
  * @version 1.0
  * @since 1.0
  */
-public abstract class AbsActor<T extends Message> implements Actor<T> {
+public abstract class AbsActor<T extends Message> extends Thread implements Actor<T> {
+
+    private MailBox<T,ActorRef<T>> mailBox_ = new ImpMailBox<>();
+    private Lock lock_ = new ReentrantLock();
+    private Condition working_;
+    private boolean processed_ = true;
+
+    public AbsActor()
+    {
+        working_ = lock_.newCondition();
+        start();
+    }
 
     /**
      * Self-reference of the actor
@@ -77,5 +92,74 @@ public abstract class AbsActor<T extends Message> implements Actor<T> {
     {
         this.sender = sender;
         return this;
+    }
+
+    /**
+     * Append message to the mailbox
+     * @param message Message to storage
+     * @param to Sender of message
+     */
+    public void post( T message, ActorRef to )
+    {
+        //Block synchronized to acquire monitor
+        lock_.lock();
+
+        if( processed_ )
+        {
+            mailBox_.append( message, to );
+            working_.signal(); //wake up
+        }
+
+        lock_.unlock();
+    }
+
+    /**
+     * Exit to the process messages loop
+     */
+    @Override
+    public void interrupt()
+    {
+        lock_.lock();
+        processed_ = false;
+        lock_.unlock();
+
+        super.interrupt();
+    }
+
+    /**
+     * This function call author receive( T message ) for each message in the MailBox
+     */
+    @Override
+    public void run()
+    {
+        while( processed_ )
+        {
+            try
+            {
+                lock_.lock();
+
+                /**
+                 * When one call signal of working is sure that there is at least one message in the mailbox
+                 */
+                if( mailBox_.isEmpty() )
+                {
+                    working_.await(); //Go to sleep thread and unlock lock
+                }
+
+                HeadMail<T,ActorRef<T>> head = mailBox_.pop();
+                lock_.unlock();
+
+                ActorRef<T> sender = head.getSender();
+                T message = head.getMessage();
+
+                setSender( sender );
+                receive( message ); //attend conclusion of task
+            }
+
+            catch( InterruptedException e )
+            {
+                lock_.unlock();
+            }
+        }
     }
 }
