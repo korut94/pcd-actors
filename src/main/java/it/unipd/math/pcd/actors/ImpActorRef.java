@@ -1,7 +1,9 @@
 package it.unipd.math.pcd.actors;
 
 /**
- * Created by amantova on 29/12/15.
+ * @author Andrea Mantovani
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class ImpActorRef<T extends Message> implements ActorRef<T>
 {
