@@ -83,18 +83,6 @@ public abstract class AbsActor<T extends Message> extends Thread implements Acto
     }
 
     /**
-     * Sets the sender-referece.
-     *
-     * @param sender The reference to actor sender
-     * @return The actor.
-     */
-    protected final Actor<T> setSender( ActorRef<T> sender )
-    {
-        this.sender = sender;
-        return this;
-    }
-
-    /**
      * Append message to the mailbox
      * @param message Message to storage
      * @param to Sender of message
@@ -147,13 +135,11 @@ public abstract class AbsActor<T extends Message> extends Thread implements Acto
                 }
 
                 HeadMail<T,ActorRef<T>> head = mailBox_.pop();
+
                 lock_.unlock();
 
-                ActorRef<T> sender = head.getSender();
-                T message = head.getMessage();
-
-                setSender( sender );
-                receive( message ); //attend conclusion of task
+                this.sender = head.getSender();
+                receive( head.getMessage() ); //attend conclusion of task
             }
 
             catch( InterruptedException e )
