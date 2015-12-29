@@ -7,6 +7,20 @@ import java.util.Map;
  */
 public final class ImpActorSystem extends AbsActorSystem
 {
+    private void stopActor( AbsActor actor )
+    {
+        actor.interrupt();
+
+        try
+        {
+            actor.join(); //wait exit of its loop
+        }
+        catch( InterruptedException e )
+        {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Stops all actors of the system.
      */
@@ -17,7 +31,7 @@ public final class ImpActorSystem extends AbsActorSystem
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            stop( ( LocalActorRef ) entry.getKey() );
+            stopActor( ( AbsActor ) entry.getValue() );
         }
     }
 
@@ -30,17 +44,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            LocalActorRef ref = ( LocalActorRef ) actor;
-            ref.interrupt();
-
-            try
-            {
-                ref.join(); //wait exit of its loop
-            }
-            catch( InterruptedException e )
-            {
-                e.printStackTrace();
-            }
+            stopActor( ( AbsActor ) getMap().get( actor ) );
         }
     }
 
@@ -49,14 +53,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( mode == ActorMode.LOCAL )
         {
-            LocalActorRef ref = new LocalActorRef( this );
-
-            /**
-             * Note that thread is start but it will stop because the mailbox is empty
-             */
-            ref.start();
-
-            return ref;
+            return new LocalActorRef( this );
         }
         else
         {
