@@ -9,20 +9,6 @@ import java.util.Map;
  */
 public final class ImpActorSystem extends AbsActorSystem
 {
-    private void stopActor( AbsActor actor )
-    {
-        actor.interrupt();
-
-        try
-        {
-            actor.join(); //wait exit of its loop
-        }
-        catch( InterruptedException e )
-        {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Stops all actors of the system.
      */
@@ -33,7 +19,7 @@ public final class ImpActorSystem extends AbsActorSystem
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            stopActor( ( AbsActor ) entry.getValue() );
+            ( ( AbsActor ) entry.getValue() ).stop();
         }
     }
 
@@ -46,7 +32,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            stopActor( ( AbsActor ) getMap().get( actor ) );
+            ( ( AbsActor ) getMap().get( actor ) ).stop();
         }
     }
 
