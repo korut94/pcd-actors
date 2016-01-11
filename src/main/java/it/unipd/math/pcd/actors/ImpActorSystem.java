@@ -45,7 +45,7 @@ public final class ImpActorSystem extends AbsActorSystem
         }
         else
         {
-            return null;
+            throw new IllegalArgumentException();
         }
     }
 }
