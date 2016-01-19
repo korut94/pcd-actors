@@ -1,5 +1,7 @@
 package it.unipd.math.pcd.actors;
 
+import it.unipd.math.pcd.actors.exceptions.NoSuchActorException;
+
 import java.util.Map;
 import java.util.concurrent.FutureTask;
 
@@ -11,20 +13,25 @@ import java.util.concurrent.FutureTask;
 public final class ImpActorSystem extends AbsActorSystem
 {
     private void stopByActorRef(
-            ActorRef<?> actor,
+            ActorRef<?> actorRef,
             Map<ActorRef<? extends Message>, Actor<? extends Message>> actors,
             Map<ActorRef<?>,FutureTask> daemons
     ) {
+
+        AbsActor actor = ( AbsActor ) actors.get( actorRef );
+
+        if ( actor == null ) throw new NoSuchActorException();
+
         //Stop the receiving messages
-        ( ( AbsActor )actors.get( actor ) ).stop();
+        ( ( AbsActor )actors.get( actorRef ) ).stop();
 
         //Wait termination of task
-        FutureTask daemon = daemons.get( actor );
+        FutureTask daemon = daemons.get( actorRef );
         daemon.cancel( true );
 
         //Remove daemon and actor of the system
-        daemons.remove( actor );
-        actors.remove( actor );
+        daemons.remove( actorRef );
+        actors.remove( actorRef );
     }
 
     /**
