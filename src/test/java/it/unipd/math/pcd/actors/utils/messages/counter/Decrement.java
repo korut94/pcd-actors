@@ -35,63 +35,13 @@
  * @version 1.0
  * @since 1.0
  */
-package it.unipd.math.pcd.actors;
+package it.unipd.math.pcd.actors.utils.messages.counter;
 
 /**
- * Defines common properties of all actors.
+ * Used to decrement the counter.
  *
  * @author Riccardo Cardin
  * @version 1.0
  * @since 1.0
  */
-public abstract class AbsActor<T extends Message> implements Actor<T> {
-
-    private MailBox<T,ActorRef<T>> mailBox_ = new BlockingImpMailBox<>();
-    private boolean stopped_ = false;
-
-    public AbsActor() {}
-
-    /**
-     * Self-reference of the actor
-     */
-    protected ActorRef<T> self;
-
-    /**
-     * Sender of the current message
-     */
-    protected ActorRef<T> sender;
-
-    /**
-     * Sets the self-referece.
-     *
-     * @param self The reference to itself
-     * @return The actor.
-     */
-    protected final Actor<T> setSelf(ActorRef<T> self) {
-        this.self = self;
-        return this;
-    }
-
-    public final MailBox<T,ActorRef<T>> getMailBox() {
-        return mailBox_;
-    }
-
-    /**
-     * Declare that this actor is stop and it won't receive any messages
-     */
-    public final void stop() {
-        stopped_ = true;
-    }
-
-    /**
-     * Append message to the mailbox
-     * @param message Message to storage
-     * @param to Sender of message
-     */
-    public final void post( T message, ActorRef<T> to )
-    {
-        if ( !stopped_ ) {
-            mailBox_.append( message, to );
-        }
-    }
-}
+public class Decrement extends CounterMessage {}

@@ -10,9 +10,9 @@ public interface MailBox<T extends Message,U extends ActorRef<T>>
 {
     boolean isEmpty();
 
-    HeadMail<T,U> pop();
-
     void append( T message, U send );
 
     void clear();
+
+    HeadMail<T,U> pop() throws InterruptedException;
 }

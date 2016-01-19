@@ -1,22 +1,17 @@
 package it.unipd.math.pcd.actors;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
 
 /**
  * @author Andrea Mantovani
  * @version 1.0
  * @since 1.0
  */
-public final class ImpMailBox<T extends Message,U extends ActorRef<T>> extends Thread implements MailBox<T,U>
+public abstract class ImpMailBox<T extends Message,U extends ActorRef<T>> implements MailBox<T,U>
 {
-    private LinkedBlockingQueue<HeadMail<T,U>> queue_ = new LinkedBlockingQueue<>();
-    private AbsActor<T> actor_;
-    private boolean processed_ = true;
+    private LinkedList<HeadMail<T,U>> queue_ = new LinkedList<>();
 
-    public ImpMailBox( AbsActor<T> actor )
-    {
-        actor_ = actor;
-    }
+    public ImpMailBox() {}
 
     /**
      * Check if queue_ is empty
@@ -35,10 +30,7 @@ public final class ImpMailBox<T extends Message,U extends ActorRef<T>> extends T
     @Override
     public void append( T message, U send )
     {
-        if( processed_ )
-        {
-            queue_.offer( new HeadMail<>( message, send ) );
-        }
+        queue_.offer( new HeadMail<>( message, send ) );
     }
 
     /**
@@ -46,7 +38,7 @@ public final class ImpMailBox<T extends Message,U extends ActorRef<T>> extends T
      * @return message extract
      */
     @Override
-    public HeadMail<T,U> pop()
+    public HeadMail<T,U> pop() throws InterruptedException
     {
         return queue_.poll();
     }
@@ -58,39 +50,5 @@ public final class ImpMailBox<T extends Message,U extends ActorRef<T>> extends T
     public void clear()
     {
         queue_.clear();
-    }
-
-    /**
-     * Stop daemon that it processed messages
-     */
-    @Override
-    public void interrupt()
-    {
-        processed_ = false;
-        super.interrupt();
-    }
-
-    /**
-     * This function call author receive( T message ) for each message in the MailBox
-     */
-    @Override
-    public void run()
-    {
-        while( processed_ )
-        {
-            try
-            {
-                HeadMail<T, U> head = queue_.take();
-
-                actor_.sender = head.getSender();
-                actor_.receive( head.getMessage() ); //attend conclusion of task
-            }
-            catch( InterruptedException e )
-            {
-            }
-        }
-
-        //Remove all message for don't create garbage
-        clear();
     }
 }
