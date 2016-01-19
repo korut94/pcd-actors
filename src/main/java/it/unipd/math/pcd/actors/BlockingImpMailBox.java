@@ -19,6 +19,18 @@ public class BlockingImpMailBox <T extends Message,U extends ActorRef<T>> extend
     }
 
     @Override
+    public boolean isEmpty() {
+        boolean empty;
+
+        lock_.lock();
+        empty = super.isEmpty();
+        lock_.unlock();
+
+        return empty;
+    }
+
+
+    @Override
     public void append( T message, U send ) {
         lock_.lock();
 
