@@ -1,6 +1,7 @@
 package it.unipd.math.pcd.actors;
 
 import java.util.Map;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author Andrea Mantovani
@@ -9,17 +10,35 @@ import java.util.Map;
  */
 public final class ImpActorSystem extends AbsActorSystem
 {
+    private void stopByActorRef(
+            ActorRef<?> actor,
+            Map<ActorRef<? extends Message>, Actor<? extends Message>> actors,
+            Map<ActorRef<?>,FutureTask> daemons
+    ) {
+        //Stop the receiving messages
+        ( ( AbsActor )actors.get( actor ) ).stop();
+
+        //Wait termination of task
+        FutureTask daemon = daemons.get( actor );
+        daemon.cancel( true );
+
+        //Remove daemon and actor of the system
+        daemons.remove( actor );
+        actors.remove( actor );
+    }
+
     /**
      * Stops all actors of the system.
      */
     @Override
     public void stop()
     {
-        Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMap();
+        Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
+        Map<ActorRef<?>,FutureTask> daemons = getMapDaemons();
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            ( ( AbsActor ) entry.getValue() ).stop();
+            stopByActorRef( entry.getKey(), actors, daemons );
         }
     }
 
@@ -32,7 +51,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            ( ( AbsActor ) getMap().get( actor ) ).stop();
+            stopByActorRef( actor, getMapActors(), getMapDaemons() );
         }
     }
 
