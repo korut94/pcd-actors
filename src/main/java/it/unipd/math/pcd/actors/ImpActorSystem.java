@@ -22,8 +22,8 @@ public final class ImpActorSystem extends AbsActorSystem
 
         if ( actor == null ) throw new NoSuchActorException();
 
-        //Stop the receiving messages
-        ( ( AbsActor )actors.get( actorRef ) ).stop();
+        //Stop the receiving messages. Remove the concurrency accesses to the Actor
+        actor.stop();
 
         //Wait termination of task
         FutureTask daemon = daemons.get( actorRef );
