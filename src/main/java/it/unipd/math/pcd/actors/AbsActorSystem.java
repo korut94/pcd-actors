@@ -41,9 +41,6 @@ import it.unipd.math.pcd.actors.exceptions.NoSuchActorException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 /**
  * A map-based implementation of the actor system.
@@ -58,8 +55,6 @@ public abstract class AbsActorSystem implements ActorSystem {
      * Associates every Actor created with an identifier.
      */
     private Map<ActorRef<?>, Actor<?>> actors = new ConcurrentHashMap<>();
-    private Map<ActorRef<?>,FutureTask> daemons_ = new ConcurrentHashMap<>();
-    private ExecutorService executor_ = Executors.newFixedThreadPool( 4 );
 
     @Override
     public ActorRef<? extends Message> actorOf(Class<? extends Actor> actor, ActorMode mode) {
@@ -73,11 +68,6 @@ public abstract class AbsActorSystem implements ActorSystem {
             Actor actorInstance = ( ( AbsActor ) actor.newInstance() ).setSelf( reference );
             // Associate the reference to the actor
             actors.put( reference, actorInstance );
-
-            FutureTask<Void> task = new FutureTask<>( new MailBoxDaemon<>( ( AbsActor ) actorInstance ) );
-            executor_.execute( task );
-            daemons_.put( reference, task );
-
         } catch (InstantiationException | IllegalAccessException e) {
             throw new NoSuchActorException(e);
         }
@@ -107,10 +97,6 @@ public abstract class AbsActorSystem implements ActorSystem {
     protected Map<ActorRef<? extends Message>,Actor<? extends Message>> getMapActors()
     {
         return actors;
-    }
-    protected Map<ActorRef<? extends Message>,FutureTask> getMapDaemons()
-    {
-        return daemons_;
     }
 
     protected abstract ActorRef createActorReference( ActorMode mode );

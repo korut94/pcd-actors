@@ -47,7 +47,6 @@ package it.unipd.math.pcd.actors;
 public abstract class AbsActor<T extends Message> implements Actor<T> {
 
     private MailBox<T,ActorRef<T>> mailBox_ = new BlockingImpMailBox<>();
-    private boolean stopped_ = false;
 
     public AbsActor() {}
 
@@ -77,21 +76,12 @@ public abstract class AbsActor<T extends Message> implements Actor<T> {
     }
 
     /**
-     * Declare that this actor is stop and it won't receive any messages
-     */
-    public final void stop() {
-        stopped_ = true;
-    }
-
-    /**
      * Append message to the mailbox
      * @param message Message to storage
      * @param to Sender of message
      */
     public final void post( T message, ActorRef<T> to )
     {
-        if ( !stopped_ ) {
-            mailBox_.append( message, to );
-        }
+        mailBox_.append( message, to );
     }
 }

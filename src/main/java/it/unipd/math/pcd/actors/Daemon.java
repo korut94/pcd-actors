@@ -1,13 +1,11 @@
 package it.unipd.math.pcd.actors;
 
-import java.util.concurrent.Callable;
-
 /**
  * Abstract Daemon to implement recall task until the ActorSystem stopped its
  *
  * @author Andrea Mantovani
  */
-public abstract class Daemon implements Callable<Void> {
+public abstract class Daemon implements Runnable {
     /**
      *  Defines until the daemon run.
      *
@@ -25,13 +23,19 @@ public abstract class Daemon implements Callable<Void> {
      */
     public abstract void forward();
 
+    /**
+     * The before of loop
+     */
+    public abstract void before();
+
     @Override
-    public Void call() {
+    public void run() {
+        before();
+
         while ( condition() ) {
             loop();
         }
 
         forward();
-        return null;
     }
 }
