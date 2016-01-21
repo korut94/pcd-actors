@@ -141,6 +141,7 @@ public class ActorRefTest {
 
         ActorRef wait = system.actorOf(LongSendActor.class, ActorSystem.ActorMode.LOCAL );
         wait.send( new LongWaitMessage(), wait );
+        wait.send( new LongWaitMessage(), wait );
 
         try {
             Thread.sleep( 5000 );

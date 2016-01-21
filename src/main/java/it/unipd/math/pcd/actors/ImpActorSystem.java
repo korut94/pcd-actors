@@ -49,16 +49,15 @@ public final class ImpActorSystem extends AbsActorSystem
         if( actor != null )
         {
             Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
-            AbsActor absActor = ( AbsActor ) actors.get( actor );
+            AbsActor absActor = ( AbsActor ) actors.remove( actor );
 
-            //System.out.println( absActor );
+            System.out.println( absActor );
 
             if( absActor == null ) {
                 throw new NoSuchActorException();
-            } else {
-                actors.remove( actor );
-                executor.stop( absActor );
             }
+
+            executor.stop( absActor );
         }
     }
 
