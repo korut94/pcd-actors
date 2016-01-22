@@ -3,7 +3,6 @@ package it.unipd.math.pcd.actors;
 import it.unipd.math.pcd.actors.exceptions.NoSuchActorException;
 
 import java.util.Map;
-import java.util.concurrent.FutureTask;
 
 /**
  * @author Andrea Mantovani
@@ -12,26 +11,17 @@ import java.util.concurrent.FutureTask;
  */
 public final class ImpActorSystem extends AbsActorSystem
 {
-    private void stopByActorRef(
-            ActorRef<?> actorRef,
-            Map<ActorRef<? extends Message>, Actor<? extends Message>> actors,
-            Map<ActorRef<?>,FutureTask> daemons
-    ) {
+    private ExecutorActor executor = new ExecutorActor();
 
-        AbsActor actor = ( AbsActor ) actors.get( actorRef );
+    @Override
+    public ActorRef<? extends Message> actorOf(Class<? extends Actor> actor, ActorMode mode ) {
+        ActorRef ref = super.actorOf( actor, mode );
 
-        if ( actor == null ) throw new NoSuchActorException();
+        Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
 
-        //Stop the receiving messages. Remove the concurrency accesses to the Actor
-        actor.stop();
+        executor.execute( ( AbsActor ) actors.get( ref ) );
 
-        //Wait termination of task
-        FutureTask daemon = daemons.get( actorRef );
-        daemon.cancel( true );
-
-        //Remove daemon and actor of the system
-        daemons.remove( actorRef );
-        actors.remove( actorRef );
+        return ref;
     }
 
     /**
@@ -41,11 +31,11 @@ public final class ImpActorSystem extends AbsActorSystem
     public void stop()
     {
         Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
-        Map<ActorRef<?>,FutureTask> daemons = getMapDaemons();
 
         for( Map.Entry<ActorRef<? extends Message>, Actor<? extends Message>> entry : actors.entrySet() )
         {
-            stopByActorRef( entry.getKey(), actors, daemons );
+            actors.remove( entry.getKey() );
+            executor.stop( ( AbsActor ) entry.getValue() );
         }
     }
 
@@ -58,7 +48,14 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( actor != null )
         {
-            stopByActorRef( actor, getMapActors(), getMapDaemons() );
+            Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
+            AbsActor absActor = ( AbsActor ) actors.remove( actor );
+
+            if( absActor == null ) {
+                throw new NoSuchActorException();
+            }
+
+            executor.stop( absActor );
         }
     }
 
@@ -67,7 +64,7 @@ public final class ImpActorSystem extends AbsActorSystem
     {
         if( mode == ActorMode.LOCAL )
         {
-            return new LocalActorRef( this );
+            return new LocalActorRef<>( this );
         }
         else
         {

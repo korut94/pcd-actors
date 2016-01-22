@@ -37,6 +37,8 @@
  */
 package it.unipd.math.pcd.actors;
 
+import it.unipd.math.pcd.actors.BrutalTest.LongSendActor;
+import it.unipd.math.pcd.actors.BrutalTest.LongWaitMessage;
 import it.unipd.math.pcd.actors.LoopTest.LoopActor;
 import it.unipd.math.pcd.actors.LoopTest.ResendMessage;
 import it.unipd.math.pcd.actors.StackTest.PopMessage;
@@ -131,6 +133,22 @@ public class ActorRefTest {
 
         system.stop();
         System.out.println( "End test" );
+    }
+
+    @Test
+    public void brutalStop() {
+        ImpActorSystem system = new ImpActorSystem();
+
+        ActorRef wait = system.actorOf(LongSendActor.class, ActorSystem.ActorMode.LOCAL );
+        wait.send( new LongWaitMessage(), wait );
+        wait.send( new LongWaitMessage(), wait );
+
+        try {
+            Thread.sleep( 5000 );
+        } catch ( InterruptedException e ) {
+        }
+
+        system.stop();
     }
 }
 
