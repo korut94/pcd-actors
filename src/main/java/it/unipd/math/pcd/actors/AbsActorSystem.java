@@ -83,8 +83,6 @@ public abstract class AbsActorSystem implements ActorSystem {
     {
         Actor actor = actors.get( ref );
 
-        System.out.println( actor );
-
         if( actor != null )
         {
             return actor;
