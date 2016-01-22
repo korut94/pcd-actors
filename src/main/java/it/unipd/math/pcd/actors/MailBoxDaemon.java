@@ -38,10 +38,8 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
      */
     @Override
     public void loop() {
-        HeadMail<T,ActorRef<T>> head = null;
-
         try {
-            head = mailBox_.pop();
+            HeadMail<T,ActorRef<T>> head = mailBox_.pop();
             actor_.sender = head.getSender();
             //attend conclusion of task
             actor_.receive( head.getMessage() );
