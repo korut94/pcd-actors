@@ -18,7 +18,10 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
 
     public void stop() {
         processed_ = false;
-        worker_.interrupt();
+
+        if( worker_ != null ) {
+            worker_.interrupt();
+        }
     }
 
     @Override
@@ -39,14 +42,11 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
 
         try {
             head = mailBox_.pop();
-
-        } catch ( InterruptedException e ) {}
-
-        if ( head != null ) {
             actor_.sender = head.getSender();
             //attend conclusion of task
             actor_.receive( head.getMessage() );
-        }
+
+        } catch ( InterruptedException e ) {}
     }
 
     /**
