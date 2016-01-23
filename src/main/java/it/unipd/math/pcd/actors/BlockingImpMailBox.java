@@ -8,7 +8,7 @@ package it.unipd.math.pcd.actors;
 public class BlockingImpMailBox <T extends Message,U extends ActorRef<T>> extends ImpMailBox<T,U> {
 
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return super.isEmpty();
     }
 
