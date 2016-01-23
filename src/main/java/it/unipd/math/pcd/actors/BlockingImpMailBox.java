@@ -1,9 +1,5 @@
 package it.unipd.math.pcd.actors;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * Versione thread-safe of ImpMailBox.
  *
@@ -11,46 +7,24 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class BlockingImpMailBox <T extends Message,U extends ActorRef<T>> extends ImpMailBox<T,U> {
 
-    private Lock lock_ = new ReentrantLock();
-    private Condition working_;
-
-    public BlockingImpMailBox() {
-        working_ = lock_.newCondition();
-    }
-
     @Override
     public boolean isEmpty() {
-        boolean empty;
-
-        lock_.lock();
-        empty = super.isEmpty();
-        lock_.unlock();
-
-        return empty;
+        return super.isEmpty();
     }
 
 
     @Override
-    public void append( T message, U send ) {
-        lock_.lock();
-
+    public synchronized void append( T message, U send ) {
         super.append( message, send );
-        working_.signal();
-
-        lock_.unlock();
+        notify();
     }
 
     @Override
-    public HeadMail<T,U> pop() throws InterruptedException{
-        lock_.lock();
-
+    public synchronized HeadMail<T,U> pop() throws InterruptedException{
         if ( super.isEmpty() ) {
-            working_.await();
+            wait();
         }
 
-        HeadMail<T,U> head = super.pop();
-        lock_.unlock();
-
-        return head;
+        return super.pop();
     }
 }
