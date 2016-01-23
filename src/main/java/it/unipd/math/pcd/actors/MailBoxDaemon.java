@@ -50,11 +50,9 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
     @Override
     public void forward() {}
 
-    /**
-     * Capture the current thread
-     */
     @Override
     public void before() {
+        //Capture the current thread
         worker_ = Thread.currentThread();
     }
 }
