@@ -14,14 +14,14 @@ public final class ImpActorSystem extends AbsActorSystem
     private ExecutorActor executor = new ExecutorActor();
 
     @Override
-    public ActorRef<? extends Message> actorOf(Class<? extends Actor> actor, ActorMode mode ) {
-        ActorRef ref = super.actorOf( actor, mode );
+    public Actor<? extends Message> dereferenceActor( ActorRef ref ) {
+        AbsActor actor = ( AbsActor ) super.dereferenceActor( ref );
 
-        Map<ActorRef<? extends Message>, Actor<? extends Message>> actors = getMapActors();
+        if ( !executor.isExecuted( actor ) ) {
+            executor.execute( actor  );
+        }
 
-        executor.execute( ( AbsActor ) actors.get( ref ) );
-
-        return ref;
+        return actor;
     }
 
     /**
