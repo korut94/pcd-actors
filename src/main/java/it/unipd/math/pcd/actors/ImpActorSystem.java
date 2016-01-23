@@ -18,7 +18,7 @@ public final class ImpActorSystem extends AbsActorSystem
         AbsActor actor = ( AbsActor ) super.dereferenceActor( ref );
 
         if ( !executor.isExecuted( actor ) ) {
-            executor.execute( actor  );
+            executor.execute( actor );
         }
 
         return actor;
