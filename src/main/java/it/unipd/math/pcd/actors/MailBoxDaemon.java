@@ -18,16 +18,13 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
 
     public void stop() {
         processed_ = false;
-
-        if( worker_ != null ) {
-            worker_.interrupt();
-        }
+        worker_.interrupt();
     }
 
     @Override
     public boolean condition() {
         /**
-         * When actorySystem has stopped a actor it is going to process
+         * When actorSystem has stopped a actor it is going to process
          * messages until the mailbox is not empty
          */
         return ( processed_ || !mailBox_.isEmpty() );
