@@ -15,14 +15,16 @@ public class ExecutorActor {
     private Map<Actor<?>,Future> daemons_ = new HashMap<>();
     private ExecutorService executor_ = Executors.newCachedThreadPool();
 
-    public ExecutorActor(){}
+
+    public boolean isExecuted( AbsActor actor ) {
+        return mailBoxes_.containsKey( actor ) ;
+    }
 
     /**
      *
      * @param actor
      */
     public void execute( AbsActor actor ) {
-
         MailBoxDaemon<?> mailBoxDaemon = new MailBoxDaemon<>( actor );
 
         mailBoxes_.put( actor, mailBoxDaemon );
@@ -34,13 +36,15 @@ public class ExecutorActor {
      * @param actor
      */
     public void stop( AbsActor actor ) {
-        mailBoxes_.get( actor ).stop();
+        if ( isExecuted( actor ) ) {
+            mailBoxes_.get( actor ).stop();
 
-        try {
-            daemons_.get( actor ).get();
+            try {
+                daemons_.get( actor ).get();
 
-        } catch ( ExecutionException | InterruptedException e ) {
-            e.printStackTrace();
+            } catch ( ExecutionException | InterruptedException e ) {
+                e.printStackTrace();
+            }
         }
     }
 }
