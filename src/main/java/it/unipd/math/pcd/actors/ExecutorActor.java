@@ -41,10 +41,10 @@ public class ExecutorActor {
      */
     public void stop( AbsActor actor ) {
         if ( isExecuted( actor ) ) {
-            mailBoxes_.get( actor ).stop();
+            mailBoxes_.remove( actor ).stop();
 
             try {
-                daemons_.get( actor ).get();
+                daemons_.remove( actor ).get();
 
             } catch ( ExecutionException | InterruptedException e ) {
                 e.printStackTrace();
