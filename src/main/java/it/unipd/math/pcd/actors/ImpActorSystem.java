@@ -37,6 +37,8 @@ public final class ImpActorSystem extends AbsActorSystem
             actors.remove( entry.getKey() );
             executor.stop( ( AbsActor ) entry.getValue() );
         }
+
+        executor.close();
     }
 
     /**
