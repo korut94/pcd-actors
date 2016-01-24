@@ -51,6 +51,23 @@ public abstract class AbsActor<T extends Message> implements Actor<T> {
     public AbsActor() {}
 
     /**
+     * @return Get reference to the MailBox created
+     */
+    final MailBox<T,ActorRef<T>> getMailBox() {
+        return mailBox_;
+    }
+
+    /**
+     * Append message to the mailbox
+     * @param message Message to storage
+     * @param to Sender of message
+     */
+    final void post( T message, ActorRef<T> to )
+    {
+        mailBox_.append( message, to );
+    }
+
+    /**
      * Self-reference of the actor
      */
     protected ActorRef<T> self;
@@ -69,19 +86,5 @@ public abstract class AbsActor<T extends Message> implements Actor<T> {
     protected final Actor<T> setSelf(ActorRef<T> self) {
         this.self = self;
         return this;
-    }
-
-    public final MailBox<T,ActorRef<T>> getMailBox() {
-        return mailBox_;
-    }
-
-    /**
-     * Append message to the mailbox
-     * @param message Message to storage
-     * @param to Sender of message
-     */
-    public final void post( T message, ActorRef<T> to )
-    {
-        mailBox_.append( message, to );
     }
 }
