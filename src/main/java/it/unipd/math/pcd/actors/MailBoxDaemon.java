@@ -18,7 +18,12 @@ public class MailBoxDaemon<T extends Message> extends Daemon {
 
     public void stop() {
         processed_ = false;
-        worker_.interrupt();
+        /**
+         * Wake up thread only if it is awaiting of a message
+         */
+        if ( worker_.getState() == Thread.State.WAITING ) {
+            worker_.interrupt();
+        }
     }
 
     @Override
