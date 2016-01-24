@@ -31,6 +31,10 @@ public class ExecutorActor {
         daemons_.put( actor, executor_.submit( mailBoxDaemon ) );
     }
 
+
+    public void close() { executor_.shutdown(); }
+
+
     /**
      *
      * @param actor
